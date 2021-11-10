@@ -3,8 +3,8 @@ from random import randint as rd
 import time
 clock = pg.time.Clock()
 pg.init()
-FPS = 90
-fpsClock = pg.time.Clock()
+FPS = 60
+сlock = pg.time.Clock()
 pg.display.set_caption('Defender of the Forest')
 
 screenX = 1280
@@ -24,73 +24,46 @@ playerL = pg.image.load('textures/playerSwordL.png')
 playerR = pg.image.load('textures/playerSwordR.png')
 swordR = pg.image.load('textures/SwordR.png')
 swordL = pg.image.load('textures/SwordL.png')
-<<<<<<< HEAD
-enemy = pg.image.load('textures/enemy.png')
-=======
 enemyLeft = pg.image.load('textures/enemyLeft.png')
 enemyRight = pg.image.load('textures/enemyRight.png')
->>>>>>> ff2e71d4ea9cc0df8e688cec1ac1f8a5eac27c32
+enemy_chest_L = pg.image.load('textures/enemy_chest_L.png')
+enemy_chest_R = pg.image.load('textures/enemy_chest_R.png')
+pickaxe_helmet = pg.image.load('textures/pickaxe_helmet.png')
 dagger = pg.image.load('textures/dagger.png')
 chest1 = pg.image.load('textures/chest.png')
-chest2 = pg.image.load('textures/chest.png')
-chest3 = pg.image.load('textures/chest.png')
-open_chest1 = pg.image.load('textures/open_chest.png')
-open_chest2 = pg.image.load('textures/open_chest.png')
-open_chest3 = pg.image.load('textures/open_chest.png')
+open_chest = pg.image.load('textures/open_chest.png')
+esc_menu = pg.image.load('textures/esc_menu.png')
+esc_1 = pg.image.load('textures/esc_1.png')
+esc_2 = pg.image.load('textures/esc_2.png')
+esc_3 = pg.image.load('textures/esc_3.png')
 
 x_enemy = 1000
 y_enemy = rd(435, 550)
 xp = 640
 yp = 500
+x_dagger = 0
+y_dagger = 0
 step = 200
 step_enemy = 100
-step_shot = 10
+step_shot = 300
 n = 1400
 xb, yb = 0, 0
-xdagger = xp + 55
-ydagger = yp + 55
 x_chest = 80
-y_chest1 = 500
-y_chest2 = 540
-y_chest3 = 580
+y_chest = 540
 x_openchest = 50
-<<<<<<< HEAD
-look_r = False
-shot = False
-=======
 look_player_r = False
 look_enemy_r = False
 move_enemy_r = False
->>>>>>> ff2e71d4ea9cc0df8e688cec1ac1f8a5eac27c32
+enemychest = False
 last_time = time.time()
+shot = False 
 
-def chests():
-    global x_chest, y_chest1, y_chest2, y_chest3
-
-<<<<<<< HEAD
-    if abs(x_enemy - x_chest) < 100 and y_chest1+100 >= y_enemy >= y_chest1-100:
-        screen.blit(open_chest1, (x_openchest, y_chest1))
+def chest():
+    global x_chest, y_chest
+    if abs(x_enemy - x_chest) < 100 and y_chest+50 >= y_enemy >= y_chest-50:
+        screen.blit(open_chest, (x_openchest, y_chest))
     else:
-        screen.blit(chest1, (x_chest, y_chest1))
-    if abs(x_enemy - x_chest) < 100 and y_chest2+100 >= y_enemy >= y_chest2-100:
-        screen.blit(open_chest2, (x_openchest, y_chest2))
-    else:
-        screen.blit(chest2, (x_chest, y_chest2))
-    if abs(x_enemy - x_chest) < 100 and y_chest3+100 >= y_enemy >= y_chest3-100:
-=======
-    if abs(x_enemy - x_chest) < 100 and y_chest1+50 >= y_enemy >= y_chest1-50:
-        screen.blit(open_chest1, (x_openchest, y_chest1))
-    else:
-        screen.blit(chest1, (x_chest, y_chest1))
-    if abs(x_enemy - x_chest) < 100 and y_chest2+50 >= y_enemy >= y_chest2-50:
-        screen.blit(open_chest2, (x_openchest, y_chest2))
-    else:
-        screen.blit(chest2, (x_chest, y_chest2))
-    if abs(x_enemy - x_chest) < 100 and y_chest3+50 >= y_enemy >= y_chest3-50:
->>>>>>> ff2e71d4ea9cc0df8e688cec1ac1f8a5eac27c32
-        screen.blit(open_chest3, (x_openchest, y_chest3))
-    else:
-        screen.blit(chest3, (x_chest, y_chest3))
+        screen.blit(chest1, (x_chest, y_chest))
     for e in pg.event.get():
         if e.type == pg.QUIT:
             quit()
@@ -115,7 +88,6 @@ def howtoplay():
     running = True
     while running:
         pos = pg.mouse.get_pos()
-        
         
         for e in pg.event.get():
             if 710 <= pos[0] <= 1280 and 620 <= pos[1] <= 690:
@@ -152,14 +124,16 @@ def menu(e):
 
 
 def move_player():
-<<<<<<< HEAD
-    global look_r, delta_t, last_time, xp, yp, step
-=======
-    global look_player_r, delta_t, last_time, xp, yp, step
->>>>>>> ff2e71d4ea9cc0df8e688cec1ac1f8a5eac27c32
+    global look_player_r, delta_t, last_time, xp, yp, step, keys
     delta_t = time.time() - last_time
     last_time = time.time()
     keys = pg.key.get_pressed()
+    if not look_player_r:
+        screen.blit(playerR, (xp, yp))
+        screen.blit(swordR, (xp, yp))
+    else:
+        screen.blit(swordL, (xp,yp))
+        screen.blit(playerL, (xp, yp))
     if keys[pg.K_d] and xp < 1200:
         look_player_r = False
         xp = xp + step*delta_t
@@ -170,29 +144,12 @@ def move_player():
         yp = yp - step*delta_t
     if keys[pg.K_s] and yp < 550:
         yp = yp + step*delta_t
-<<<<<<< HEAD
-    if not look_r:
-=======
-    if not look_player_r:
->>>>>>> ff2e71d4ea9cc0df8e688cec1ac1f8a5eac27c32
-        screen.blit(playerR, (xp, yp))
-        screen.blit(swordR, (xp, yp))
-    else:
-        screen.blit(swordL, (xp,yp))
-        screen.blit(playerL, (xp, yp))
 
 def move_enemy():
-<<<<<<< HEAD
-    global x_enemy
-    if x_enemy > 100:
-        x_enemy = x_enemy-step_enemy*delta_t
-    else:
-        x_enemy = 1000
-    screen.blit(enemy, (x_enemy, y_enemy))
-=======
-    global x_enemy, y_enemy, move_enemy_r, look_enemy_r
+    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest
     if x_enemy >= 1000:
         move_enemy_r = False
+        enemychest = False
     if not move_enemy_r:
         look_enemy_r = False
         x_enemy = x_enemy-step_enemy*delta_t
@@ -205,35 +162,71 @@ def move_enemy():
     if not look_enemy_r:
         screen.blit(enemyLeft, (x_enemy, y_enemy))
     else:
-        screen.blit(enemyRight, (x_enemy, y_enemy))
-        screen.blit(chest1, (x_enemy+40, y_enemy+40))
+        enemychest = True
+        screen.blit(enemy_chest_R, (x_enemy, y_enemy))
+        screen.blit(pickaxe_helmet, (100, 560))
+
+
     
->>>>>>> ff2e71d4ea9cc0df8e688cec1ac1f8a5eac27c32
+def esc_game():
+    global run_game
+    run_esc = True
+    while run_esc:
+        pos = pg.mouse.get_pos()
+        for e in pg.event.get():
+            if e.type == pg.QUIT:
+                exit()
+            if 660 >= pos[0] >= 0 and 510 >= pos[1] >= 410:
+                screen.blit(esc_1, (0,0))
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    run_game = True
+                    run_esc = False
+            elif 535 >= pos[0] >= 15 and 595 >= pos[1] >= 525:
+                screen.blit(esc_2, (0,0))
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    menu2()
+                    run_esc = False
+            elif 200 >= pos[0] >= 10 and 720 >= pos[1] >= 635:
+                screen.blit(esc_3, (0,0))
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    quit()
+            else:
+                screen.blit(esc_menu, (0,0))
+        pg.display.update()
 
 
-def game():
-    while True:
+def menu2():
+    run_menu = True
+    while run_menu:
+        pos = pg.mouse.get_pos()
+        for e in pg.event.get():
+            if e.type == pg.QUIT:
+                exit()
+            menu(e)
+            if 900 >= pos[0] >= 430 and 275 >= pos[1] >= 200 and e.type == pg.MOUSEBUTTONDOWN:
+                run_menu = False
+                run_game = True
+        pg.display.update()
+        сlock.tick(FPS)
+    return run_game
+run_game = menu2()
+
+def game(run_game):
+    global   shot, x_dagger, y_dagger
+    while run_game:
         screen.blit(background, (0,0))
-        chests()
+        if not enemychest:
+            chest()
         move_player()
         move_enemy()
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 exit()
+            if e.key == pg.K_ESCAPE:
+                esc_game()
+                
         pg.display.update()
+        сlock.tick(FPS)
 
-
-    
-while True:
-    pos = pg.mouse.get_pos()
-    for e in pg.event.get():
-        if e.type == pg.QUIT:
-            exit()
-        menu(e)
-        if 900 >= pos[0] >= 430 and 275 >= pos[1] >= 200 and e.type == pg.MOUSEBUTTONDOWN:
-            game()
-    pg.display.update()
-<<<<<<< HEAD
-=======
-    fpsClock.tick(FPS)
->>>>>>> ff2e71d4ea9cc0df8e688cec1ac1f8a5eac27c32
+menu2()
+game(run_game)
