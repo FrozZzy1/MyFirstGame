@@ -11,38 +11,38 @@ screenX = 1280
 screenY = 720
 screen = pg.display.set_mode((screenX, screenY))
 background = pg.image.load('textures/background.png')
-start_screen = pg.image.load('textures/start_screen.png')
-start_screen_1 = pg.image.load('textures/start_screen_1.png')
-start_screen_2 = pg.image.load('textures/start_screen_2.png')
-start_screen_3 = pg.image.load('textures/start_screen_3.png')
-screen_howtoplay = pg.image.load('textures/screen_howtoplay.png')
-screen_howtoplay2 = pg.image.load('textures/screen_howtoplay2.png')
-screen_management = pg.image.load('textures/screen_management.png')
-management_backtomenu = pg.image.load('textures/management_backtomenu.png')
-management_backtomenu2 = pg.image.load('textures/management_backtomenu2.png')
+start_screen = pg.image.load('textures/start_screen/start_screen.png')
+start_screen_1 = pg.image.load('textures/start_screen/start_screen_1.png')
+start_screen_2 = pg.image.load('textures/start_screen/start_screen_2.png')
+start_screen_3 = pg.image.load('textures/start_screen/start_screen_3.png')
+screen_howtoplay = pg.image.load('textures/howtoplay/screen_howtoplay.png')
+screen_howtoplay2 = pg.image.load('textures/howtoplay/screen_howtoplay2.png')
+screen_management = pg.image.load('textures/howtoplay/screen_management.png')
+management_backtomenu = pg.image.load('textures/howtoplay/management_backtomenu.png')
+management_backtomenu2 = pg.image.load('textures/howtoplay/management_backtomenu2.png')
 playerL = pg.image.load('textures/playerSwordL.png')
 playerR = pg.image.load('textures/playerSwordR.png')
 swordR = pg.image.load('textures/SwordR.png')
 swordL = pg.image.load('textures/SwordL.png')
-enemyLeft = pg.image.load('textures/enemyLeft.png')
-enemyRight = pg.image.load('textures/enemyRight.png')
-enemy_chest_L = pg.image.load('textures/enemy_chest_L.png')
-enemy_chest_R = pg.image.load('textures/enemy_chest_R.png')
+enemyLeft = pg.image.load('textures/enemy/enemyLeft.png')
+enemyRight = pg.image.load('textures/enemy/enemyRight.png')
+enemy_chest_L = pg.image.load('textures/enemy/enemy_chest_L.png')
+enemy_chest_R = pg.image.load('textures/enemy/enemy_chest_R.png')
 pickaxe_helmet = pg.image.load('textures/pickaxe_helmet.png')
 dagger = pg.image.load('textures/dagger.png')
 chest1 = pg.image.load('textures/chest.png')
 open_chest = pg.image.load('textures/open_chest.png')
-esc_menu = pg.image.load('textures/esc_menu.png')
-esc_1 = pg.image.load('textures/esc_1.png')
-esc_2 = pg.image.load('textures/esc_2.png')
-esc_3 = pg.image.load('textures/esc_3.png')
+esc_menu = pg.image.load('textures/esc/esc_menu.png')
+esc_1 = pg.image.load('textures/esc/esc_1.png')
+esc_2 = pg.image.load('textures/esc/esc_2.png')
+esc_3 = pg.image.load('textures/esc/esc_3.png')
 
 x_enemy = 1000
 y_enemy = rd(435, 550)
 xp = 640
 yp = 500
-x_dagger = 0
-y_dagger = 0
+x_dagger = xp + 55
+y_dagger = yp + 55
 step = 200
 step_enemy = 100
 step_shot = 300
@@ -56,17 +56,19 @@ look_enemy_r = False
 move_enemy_r = False
 enemychest = False
 last_time = time.time()
-shot = False 
+bool_shot = False
+run_esc = False
 
 def chest():
     global x_chest, y_chest
-    if abs(x_enemy - x_chest) < 100 and y_chest+50 >= y_enemy >= y_chest-50:
-        screen.blit(open_chest, (x_openchest, y_chest))
-    else:
-        screen.blit(chest1, (x_chest, y_chest))
-    for e in pg.event.get():
-        if e.type == pg.QUIT:
-            quit()
+    if not enemychest:
+        if abs(x_enemy - x_chest) < 100 and y_chest+50 >= y_enemy >= y_chest-50:
+            screen.blit(open_chest, (x_openchest, y_chest))
+        else:
+            screen.blit(chest1, (x_chest, y_chest))
+        for e in pg.event.get():
+            if e.type == pg.QUIT:
+                quit()
     pg.display.update()
 
 def backtomenu():
@@ -130,9 +132,7 @@ def move_player():
     keys = pg.key.get_pressed()
     if not look_player_r:
         screen.blit(playerR, (xp, yp))
-        screen.blit(swordR, (xp, yp))
     else:
-        screen.blit(swordL, (xp,yp))
         screen.blit(playerL, (xp, yp))
     if keys[pg.K_d] and xp < 1200:
         look_player_r = False
@@ -166,11 +166,24 @@ def move_enemy():
         screen.blit(enemy_chest_R, (x_enemy, y_enemy))
         screen.blit(pickaxe_helmet, (100, 560))
 
+def shot():
+    global bool_shot, step_shot, x_dagger, y_dagger
+    if bool_shot:
+        if not look_player_r:
+            x_dagger += step_shot*delta_t
+        else:
+            x_dagger -= step_shot*delta_t
+        if screenX <= x_dagger or x_dagger <= 0 or (x_enemy + 80 >= x_dagger >= x_enemy and y_enemy + 80 >= y_dagger >= y_enemy):
+            bool_shot = False
+        screen.blit(dagger, (x_dagger, y_dagger))
+    else:
+        x_dagger = xp + 55
+        y_dagger = yp + 55
+
 
     
 def esc_game():
-    global run_game
-    run_esc = True
+    global run_game, run_esc
     while run_esc:
         pos = pg.mouse.get_pos()
         for e in pg.event.get():
@@ -196,6 +209,7 @@ def esc_game():
 
 
 def menu2():
+    global run_game
     run_menu = True
     while run_menu:
         pos = pg.mouse.get_pos()
@@ -208,25 +222,26 @@ def menu2():
                 run_game = True
         pg.display.update()
         сlock.tick(FPS)
-    return run_game
-run_game = menu2()
 
-def game(run_game):
-    global   shot, x_dagger, y_dagger
+def game():
+    global run_esc, bool_shot
     while run_game:
         screen.blit(background, (0,0))
-        if not enemychest:
-            chest()
-        move_player()
-        move_enemy()
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 exit()
-            if e.key == pg.K_ESCAPE:
-                esc_game()
-                
+            if e.type == pg.KEYDOWN:
+                if e.key == pg.K_ESCAPE:
+                    run_esc = True
+                if e.key == pg.K_SPACE:
+                    bool_shot = True
+        chest()
+        move_player()
+        move_enemy()
+        esc_game()
+        shot()
         pg.display.update()
         сlock.tick(FPS)
 
 menu2()
-game(run_game)
+game()
