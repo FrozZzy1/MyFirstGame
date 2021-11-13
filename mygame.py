@@ -20,16 +20,23 @@ screen_howtoplay2 = pg.image.load('textures/howtoplay/screen_howtoplay2.png')
 screen_management = pg.image.load('textures/howtoplay/screen_management.png')
 management_backtomenu = pg.image.load('textures/howtoplay/management_backtomenu.png')
 management_backtomenu2 = pg.image.load('textures/howtoplay/management_backtomenu2.png')
-playerL = pg.image.load('textures/playerSwordL.png')
-playerR = pg.image.load('textures/playerSwordR.png')
-swordR = pg.image.load('textures/SwordR.png')
-swordL = pg.image.load('textures/SwordL.png')
+playerL0 = pg.image.load('textures/player/playerSwordL0.png')
+playerL1 = pg.image.load('textures/player/playerSwordL1.png')
+playerL2 = pg.image.load('textures/player/playerSwordL2.png')
+playerL3 = pg.image.load('textures/player/playerSwordL3.png')
+playerL4 = pg.image.load('textures/player/playerSwordL4.png')
+playerR0 = pg.image.load('textures/player/playerSwordR0.png')
+playerR1 = pg.image.load('textures/player/playerSwordR1.png')
+playerR2 = pg.image.load('textures/player/playerSwordR2.png')
+playerR3 = pg.image.load('textures/player/playerSwordR3.png')
+playerR4 = pg.image.load('textures/player/playerSwordR4.png')
 enemyLeft = pg.image.load('textures/enemy/enemyLeft.png')
 enemyRight = pg.image.load('textures/enemy/enemyRight.png')
 enemy_chest_L = pg.image.load('textures/enemy/enemy_chest_L.png')
 enemy_chest_R = pg.image.load('textures/enemy/enemy_chest_R.png')
 pickaxe_helmet = pg.image.load('textures/pickaxe_helmet.png')
-dagger = pg.image.load('textures/dagger.png')
+daggerRight = pg.image.load('textures/daggerRight.png')
+daggerLeft = pg.image.load('textures/daggerLeft.png')
 chest1 = pg.image.load('textures/chest.png')
 open_chest = pg.image.load('textures/open_chest.png')
 esc_menu = pg.image.load('textures/esc/esc_menu.png')
@@ -123,34 +130,93 @@ def menu(e):
         screen.blit(start_screen, (0, 0))
     if 840 >= pos[0] >= 485 and 380 >= pos[1] >= 300 and e.type == pg.MOUSEBUTTONDOWN:
         howtoplay()
+    pg.display.update()
+
+playerR = [playerR0, playerR1, playerR2, playerR3, playerR4]
+playerL = [playerL0, playerL1, playerL2, playerL3, playerL4]
+anim_point_player = 40
+animation_hit = False
+def anim_player(playerR, playerL):
+    global animation_hit, xp, yp, anim_point_player
+    if not look_player_r:
+        if anim_point_player >= 36:
+            screen.blit(playerR[1], (xp, yp))
+        elif 35 >= anim_point_player >= 31:
+            screen.blit(playerR[2], (xp, yp))
+        elif 30 >= anim_point_player >= 26:
+            screen.blit(playerR[3], (xp, yp))
+        elif 25 >= anim_point_player >= 21:
+            screen.blit(playerR[4], (xp, yp))
+        elif 20 >= anim_point_player >= 16:
+            screen.blit(playerR[3], (xp, yp))
+        elif 15 >= anim_point_player >= 11:
+            screen.blit(playerR[2], (xp, yp))
+        elif 10 >= anim_point_player >= 6:
+            screen.blit(playerR[1], (xp, yp))
+        elif 5 >= anim_point_player >= 1:
+            screen.blit(playerR[0], (xp, yp))
+        elif anim_point_player <= 0:
+            animation_hit = False
+            anim_point_player = 40
+        anim_point_player -= 2
+    elif look_player_r:
+        if anim_point_player >= 36:
+            screen.blit(playerL[1], (xp, yp))
+        elif 35 >= anim_point_player >= 31:
+            screen.blit(playerL[2], (xp, yp))
+        elif 30 >= anim_point_player >= 26:
+            screen.blit(playerL[3], (xp, yp))
+        elif 25 >= anim_point_player >= 21:
+            screen.blit(playerL[4], (xp, yp))
+        elif 20 >= anim_point_player >= 16:
+            screen.blit(playerL[3], (xp, yp))
+        elif 15 >= anim_point_player >= 11:
+            screen.blit(playerL[2], (xp, yp))
+        elif 10 >= anim_point_player >= 6:
+            screen.blit(playerL[1], (xp, yp))
+        elif 5 >= anim_point_player >= 1:
+            screen.blit(playerL[0], (xp, yp))
+        elif anim_point_player <= 0:
+            animation_hit = False
+            anim_point_player = 40
+        anim_point_player -= 2
+                
 
 
 def move_player():
-    global look_player_r, delta_t, last_time, xp, yp, step, keys
+    global look_player_r, delta_t, last_time, xp, yp, step, keys, timer_player, animation_hit
     delta_t = time.time() - last_time
     last_time = time.time()
     keys = pg.key.get_pressed()
-    if not look_player_r:
-        screen.blit(playerR, (xp, yp))
+    if not animation_hit:
+        if not look_player_r:
+            screen.blit(playerR1, (xp, yp))
+        else:
+            screen.blit(playerL1, (xp, yp))
+        if keys[pg.K_d] and xp < 1200:
+            look_player_r = False
+            xp = xp + step*delta_t
+        if keys[pg.K_a] and xp > 45:
+            look_player_r = True
+            xp = xp - step*delta_t
+        if keys[pg.K_w] and yp > 435:
+            yp = yp - step*delta_t
+        if keys[pg.K_s] and yp < 550:
+            yp = yp + step*delta_t
     else:
-        screen.blit(playerL, (xp, yp))
-    if keys[pg.K_d] and xp < 1200:
-        look_player_r = False
-        xp = xp + step*delta_t
-    if keys[pg.K_a] and xp > 45:
-        look_player_r = True
-        xp = xp - step*delta_t
-    if keys[pg.K_w] and yp > 435:
-        yp = yp - step*delta_t
-    if keys[pg.K_s] and yp < 550:
-        yp = yp + step*delta_t
+        anim_player(playerR, playerL)
 
 def move_enemy():
-    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest
+    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, y_chest, random_x_enemy    
     if x_enemy >= 1000:
         move_enemy_r = False
         enemychest = False
+        random_x_enemy = rd(200, 800)
     if not move_enemy_r:
+        if y_enemy < y_chest and x_enemy < random_x_enemy:
+            y_enemy = y_enemy + step_enemy*delta_t
+        elif y_enemy > y_chest + 50 and x_enemy < random_x_enemy:
+            y_enemy = y_enemy - step_enemy*delta_t
         look_enemy_r = False
         x_enemy = x_enemy-step_enemy*delta_t
     if x_enemy <= 100:
@@ -164,21 +230,26 @@ def move_enemy():
     else:
         enemychest = True
         screen.blit(enemy_chest_R, (x_enemy, y_enemy))
-        screen.blit(pickaxe_helmet, (100, 560))
+    pg.display.update()
+
+
+look_shot = 0
 
 def shot():
-    global bool_shot, step_shot, x_dagger, y_dagger
+    global bool_shot, step_shot, x_dagger, y_dagger, look_shot
     if bool_shot:
-        if not look_player_r:
+        if look_shot == 1: 
             x_dagger += step_shot*delta_t
-        else:
+            screen.blit(daggerRight, (x_dagger, y_dagger))
+        elif look_shot == 2:
             x_dagger -= step_shot*delta_t
+            screen.blit(daggerLeft, (x_dagger, y_dagger))
         if screenX <= x_dagger or x_dagger <= 0 or (x_enemy + 80 >= x_dagger >= x_enemy and y_enemy + 80 >= y_dagger >= y_enemy):
             bool_shot = False
-        screen.blit(dagger, (x_dagger, y_dagger))
     else:
         x_dagger = xp + 55
         y_dagger = yp + 55
+        look_shot = look_dagger(look_shot)
 
 
     
@@ -205,7 +276,6 @@ def esc_game():
                     quit()
             else:
                 screen.blit(esc_menu, (0,0))
-        pg.display.update()
 
 
 def menu2():
@@ -220,11 +290,17 @@ def menu2():
             if 900 >= pos[0] >= 430 and 275 >= pos[1] >= 200 and e.type == pg.MOUSEBUTTONDOWN:
                 run_menu = False
                 run_game = True
-        pg.display.update()
         сlock.tick(FPS)
 
+def look_dagger(look_shot):
+    if not look_player_r:
+        look_shot = 1
+    elif look_player_r:
+        look_shot = 2
+    return look_shot
+
 def game():
-    global run_esc, bool_shot
+    global run_esc, bool_shot, look_shot, look_player_r, animation_hit
     while run_game:
         screen.blit(background, (0,0))
         for e in pg.event.get():
@@ -233,15 +309,19 @@ def game():
             if e.type == pg.KEYDOWN:
                 if e.key == pg.K_ESCAPE:
                     run_esc = True
-                if e.key == pg.K_SPACE:
+                if e.key == pg.K_f:
+                    look_dagger(look_shot)
                     bool_shot = True
+                elif e.key == pg.K_SPACE:
+                    animation_hit = True
         chest()
         move_player()
         move_enemy()
         esc_game()
         shot()
-        pg.display.update()
         сlock.tick(FPS)
+        pg.time.delay(-20)
+        pg.display.flip()
 
 menu2()
 game()
