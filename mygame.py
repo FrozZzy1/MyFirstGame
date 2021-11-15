@@ -20,16 +20,6 @@ screen_howtoplay2 = pg.image.load('textures/howtoplay/screen_howtoplay2.png')
 screen_management = pg.image.load('textures/howtoplay/screen_management.png')
 management_backtomenu = pg.image.load('textures/howtoplay/management_backtomenu.png')
 management_backtomenu2 = pg.image.load('textures/howtoplay/management_backtomenu2.png')
-playerL0 = pg.image.load('textures/player/playerSwordL0.png')
-playerL1 = pg.image.load('textures/player/playerSwordL1.png')
-playerL2 = pg.image.load('textures/player/playerSwordL2.png')
-playerL3 = pg.image.load('textures/player/playerSwordL3.png')
-playerL4 = pg.image.load('textures/player/playerSwordL4.png')
-playerR0 = pg.image.load('textures/player/playerSwordR0.png')
-playerR1 = pg.image.load('textures/player/playerSwordR1.png')
-playerR2 = pg.image.load('textures/player/playerSwordR2.png')
-playerR3 = pg.image.load('textures/player/playerSwordR3.png')
-playerR4 = pg.image.load('textures/player/playerSwordR4.png')
 enemyLeft = pg.image.load('textures/enemy/enemyLeft.png')
 enemyRight = pg.image.load('textures/enemy/enemyRight.png')
 enemy_chest_L = pg.image.load('textures/enemy/enemy_chest_L.png')
@@ -37,12 +27,6 @@ enemy_chest_R = pg.image.load('textures/enemy/enemy_chest_R.png')
 pickaxe_helmet = pg.image.load('textures/pickaxe_helmet.png')
 daggerRight = pg.image.load('textures/daggerRight.png')
 daggerLeft = pg.image.load('textures/daggerLeft.png')
-chest1 = pg.image.load('textures/chest.png')
-open_chest = pg.image.load('textures/open_chest.png')
-esc_menu = pg.image.load('textures/esc/esc_menu.png')
-esc_1 = pg.image.load('textures/esc/esc_1.png')
-esc_2 = pg.image.load('textures/esc/esc_2.png')
-esc_3 = pg.image.load('textures/esc/esc_3.png')
 
 x_enemy = 1000
 y_enemy = rd(435, 550)
@@ -66,6 +50,10 @@ last_time = time.time()
 bool_shot = False
 run_esc = False
 
+
+chest1 = pg.image.load('textures/chest.png')
+open_chest = pg.image.load('textures/open_chest.png')
+
 def chest():
     global x_chest, y_chest
     if not enemychest:
@@ -76,7 +64,6 @@ def chest():
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 quit()
-    pg.display.update()
 
 def backtomenu():
     running = True
@@ -132,6 +119,17 @@ def menu(e):
         howtoplay()
     pg.display.update()
 
+
+playerL0 = pg.image.load('textures/player/playerSwordL0.png')
+playerL1 = pg.image.load('textures/player/playerSwordL1.png')
+playerL2 = pg.image.load('textures/player/playerSwordL2.png')
+playerL3 = pg.image.load('textures/player/playerSwordL3.png')
+playerL4 = pg.image.load('textures/player/playerSwordL4.png')
+playerR0 = pg.image.load('textures/player/playerSwordR0.png')
+playerR1 = pg.image.load('textures/player/playerSwordR1.png')
+playerR2 = pg.image.load('textures/player/playerSwordR2.png')
+playerR3 = pg.image.load('textures/player/playerSwordR3.png')
+playerR4 = pg.image.load('textures/player/playerSwordR4.png')
 playerR = [playerR0, playerR1, playerR2, playerR3, playerR4]
 playerL = [playerL0, playerL1, playerL2, playerL3, playerL4]
 anim_point_player = 40
@@ -158,7 +156,7 @@ def anim_player(playerR, playerL):
         elif anim_point_player <= 0:
             animation_hit = False
             anim_point_player = 40
-        anim_point_player -= 2
+        anim_point_player -= 2.5
     elif look_player_r:
         if anim_point_player >= 36:
             screen.blit(playerL[1], (xp, yp))
@@ -179,8 +177,9 @@ def anim_player(playerR, playerL):
         elif anim_point_player <= 0:
             animation_hit = False
             anim_point_player = 40
-        anim_point_player -= 2
-                
+        anim_point_player -= 2.5
+
+
 
 
 def move_player():
@@ -206,31 +205,60 @@ def move_player():
     else:
         anim_player(playerR, playerL)
 
-def move_enemy():
-    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, y_chest, random_x_enemy    
-    if x_enemy >= 1000:
-        move_enemy_r = False
-        enemychest = False
-        random_x_enemy = rd(200, 800)
-    if not move_enemy_r:
-        if y_enemy < y_chest and x_enemy < random_x_enemy:
-            y_enemy = y_enemy + step_enemy*delta_t
-        elif y_enemy > y_chest + 50 and x_enemy < random_x_enemy:
-            y_enemy = y_enemy - step_enemy*delta_t
-        look_enemy_r = False
-        x_enemy = x_enemy-step_enemy*delta_t
-    if x_enemy <= 100:
-        move_enemy_r = True
-    if move_enemy_r:
-        look_enemy_r = True
-        x_enemy = x_enemy+step_enemy*delta_t
 
-    if not look_enemy_r:
-        screen.blit(enemyLeft, (x_enemy, y_enemy))
+dead_enemy_bool = False
+dead_point_enemy = 100
+dead_enemy_left = pg.image.load('textures/enemy/dead_enemy_left.png')
+dead_enemy_right = pg.image.load('textures/enemy/dead_enemy_right.png')
+
+def dead_enemy():
+    global x_enemy, y_enemy, dead_point_enemy, dead_enemy_bool
+    if dead_point_enemy <= 1:
+        x_enemy = 1000
+        dead_enemy_bool = False
+        dead_point_enemy = 100
     else:
-        enemychest = True
-        screen.blit(enemy_chest_R, (x_enemy, y_enemy))
-    pg.display.update()
+        screen.blit(dead_enemy_left, (x_enemy, y_enemy))
+    dead_point_enemy -= 1
+
+def if_dead_enemy():
+    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, y_chest, random_x_enemy, dead_enemy_bool
+    if anim_point_player <= 5 and not look_player_r and xp + 40 <= x_enemy <= xp + 80 and yp - 40 <= y_enemy <= yp + 120:
+        dead_enemy_bool = True
+    elif anim_point_player <= 5 and look_player_r and xp - 40 <= x_enemy + 40 <= xp + 40 and yp - 40 <= y_enemy <= yp + 120:
+        dead_enemy_bool = True
+    elif x_enemy + 80 >= x_dagger >= x_enemy and y_enemy + 80 >= y_dagger >= y_enemy:
+        dead_enemy_bool = True
+
+def move_enemy():
+    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, y_chest, random_x_enemy, dead_enemy_bool
+    if_dead_enemy()
+    if dead_enemy_bool:
+        dead_enemy()
+    else:
+        if x_enemy >= 1000:
+            move_enemy_r = False
+            enemychest = False
+            random_x_enemy = rd(200, 800)
+        if not move_enemy_r:
+            if y_enemy < y_chest and x_enemy < random_x_enemy:
+                y_enemy = y_enemy + step_enemy*delta_t
+            elif y_enemy > y_chest + 50 and x_enemy < random_x_enemy:
+                y_enemy = y_enemy - step_enemy*delta_t
+            look_enemy_r = False
+            x_enemy = x_enemy-step_enemy*delta_t
+        if x_enemy <= 100:
+            move_enemy_r = True
+        if move_enemy_r:
+            look_enemy_r = True
+            x_enemy = x_enemy+step_enemy*delta_t
+
+        if not look_enemy_r:
+            screen.blit(enemyLeft, (x_enemy, y_enemy))
+        else:
+            enemychest = True
+            screen.blit(enemy_chest_R, (x_enemy, y_enemy))
+
 
 
 look_shot = 0
@@ -253,6 +281,11 @@ def shot():
 
 
     
+esc_menu = pg.image.load('textures/esc/esc_menu.png')
+esc_1 = pg.image.load('textures/esc/esc_1.png')
+esc_2 = pg.image.load('textures/esc/esc_2.png')
+esc_3 = pg.image.load('textures/esc/esc_3.png')
+
 def esc_game():
     global run_game, run_esc
     while run_esc:
@@ -299,8 +332,9 @@ def look_dagger(look_shot):
         look_shot = 2
     return look_shot
 
+
 def game():
-    global run_esc, bool_shot, look_shot, look_player_r, animation_hit
+    global run_esc, bool_shot, look_shot, look_player_r, animation_hit, x_dagger, y_dagger
     while run_game:
         screen.blit(background, (0,0))
         for e in pg.event.get():
@@ -320,7 +354,6 @@ def game():
         esc_game()
         shot()
         сlock.tick(FPS)
-        pg.time.delay(-20)
         pg.display.flip()
 
 menu2()
