@@ -5,7 +5,7 @@ clock = pg.time.Clock()
 pg.init()
 FPS = 60
 сlock = pg.time.Clock()
-pg.display.set_caption('Defender of the Forest')
+pg.display.set_caption('Защитник леса')
 
 screenX = 1280
 screenY = 720
@@ -28,14 +28,11 @@ pickaxe_helmet = pg.image.load('textures/pickaxe_helmet.png')
 daggerRight = pg.image.load('textures/daggerRight.png')
 daggerLeft = pg.image.load('textures/daggerLeft.png')
 
-x_enemy = 1000
-y_enemy = rd(435, 550)
 xp = 640
 yp = 500
 x_dagger = xp + 55
 y_dagger = yp + 55
 step = 200
-step_enemy = 100
 step_shot = 300
 n = 1400
 xb, yb = 0, 0
@@ -183,7 +180,7 @@ def anim_player(playerR, playerL):
 
 
 def move_player():
-    global look_player_r, delta_t, last_time, xp, yp, step, keys, timer_player, animation_hit
+    global look_player_r, delta_t, last_time, xp, yp, step, animation_hit
     delta_t = time.time() - last_time
     last_time = time.time()
     keys = pg.key.get_pressed()
@@ -208,6 +205,9 @@ def move_player():
 
 dead_enemy_bool = False
 dead_point_enemy = 100
+x_enemy = 1000
+y_enemy = rd(435, 550)
+step_enemy = 100
 dead_enemy_left = pg.image.load('textures/enemy/dead_enemy_left.png')
 dead_enemy_right = pg.image.load('textures/enemy/dead_enemy_right.png')
 
@@ -230,8 +230,10 @@ def if_dead_enemy():
     elif x_enemy + 80 >= x_dagger >= x_enemy and y_enemy + 80 >= y_dagger >= y_enemy:
         dead_enemy_bool = True
 
+position = 40
+y_step_enemy = 70
 def move_enemy():
-    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, y_chest, random_x_enemy, dead_enemy_bool
+    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, random_x_enemy, y_chest, dead_enemy_bool, step_enemy, y_step_enemy, position
     if_dead_enemy()
     if dead_enemy_bool:
         dead_enemy()
@@ -242,11 +244,19 @@ def move_enemy():
             random_x_enemy = rd(200, 800)
         if not move_enemy_r:
             if y_enemy < y_chest and x_enemy < random_x_enemy:
-                y_enemy = y_enemy + step_enemy*delta_t
-            elif y_enemy > y_chest + 50 and x_enemy < random_x_enemy:
-                y_enemy = y_enemy - step_enemy*delta_t
+                y_enemy = y_enemy + y_step_enemy*delta_t
+            elif y_enemy > y_chest + 30 and x_enemy < random_x_enemy:
+                y_enemy = y_enemy - y_step_enemy*delta_t
             look_enemy_r = False
             x_enemy = x_enemy-step_enemy*delta_t
+        if move_enemy_r:
+            if 30 <= position <= 40 and 550 >= y_enemy >= 450:
+                y_enemy = y_enemy - y_step_enemy*delta_t
+            elif 10 <= position <= 20 and 550 >= y_enemy >= 430:
+                y_enemy = y_enemy + y_step_enemy*delta_t
+            position -= 0.1
+        if position <= 0:
+            position = 40
         if x_enemy <= 100:
             move_enemy_r = True
         if move_enemy_r:
@@ -258,6 +268,7 @@ def move_enemy():
         else:
             enemychest = True
             screen.blit(enemy_chest_R, (x_enemy, y_enemy))
+        
 
 
 
@@ -275,8 +286,8 @@ def shot():
         if screenX <= x_dagger or x_dagger <= 0 or (x_enemy + 80 >= x_dagger >= x_enemy and y_enemy + 80 >= y_dagger >= y_enemy):
             bool_shot = False
     else:
-        x_dagger = xp + 55
-        y_dagger = yp + 55
+        x_dagger = 0
+        y_dagger = 0
         look_shot = look_dagger(look_shot)
 
 
@@ -345,6 +356,9 @@ def game():
                     run_esc = True
                 if e.key == pg.K_f:
                     look_dagger(look_shot)
+                    if not bool_shot:
+                        x_dagger = xp + 55
+                        y_dagger = yp + 55
                     bool_shot = True
                 elif e.key == pg.K_SPACE:
                     animation_hit = True
