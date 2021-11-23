@@ -1,3 +1,4 @@
+from math import e
 import pygame as pg
 from random import randint as rd
 import time
@@ -210,25 +211,51 @@ y_enemy = rd(435, 550)
 step_enemy = 100
 dead_enemy_left = pg.image.load('textures/enemy/dead_enemy_left.png')
 dead_enemy_right = pg.image.load('textures/enemy/dead_enemy_right.png')
+enemy_full_hp = pg.image.load('textures/enemy_hp/full.png')
+enemy_half_hp = pg.image.load('textures/enemy_hp/half.png')
+enemy_zero_hp = pg.image.load('textures/enemy_hp/zero.png')
+enemy_count_hp = 3
+
+def enemy_hp(enemy_count_hp):
+    global dead_enemy_bool, enemychest
+    if not enemychest:
+        if enemy_count_hp == 3:
+            screen.blit(enemy_full_hp, (x_enemy, y_enemy))
+        elif enemy_count_hp == 2:
+            screen.blit(enemy_half_hp, (x_enemy, y_enemy))
+        elif enemy_count_hp <= 1:
+            screen.blit(enemy_zero_hp, (x_enemy, y_enemy))
+            dead_enemy_bool = True
+    elif enemychest:
+        if enemy_count_hp == 3:
+            screen.blit(enemy_full_hp, (x_enemy+25, y_enemy))
+        elif enemy_count_hp == 2:
+            screen.blit(enemy_half_hp, (x_enemy+25, y_enemy))
+        elif enemy_count_hp <= 1:
+            screen.blit(enemy_zero_hp, (x_enemy+25, y_enemy))
+            dead_enemy_bool = True
 
 def dead_enemy():
-    global x_enemy, y_enemy, dead_point_enemy, dead_enemy_bool
+    global x_enemy, y_enemy, dead_point_enemy, dead_enemy_bool, enemy_count_hp
     if dead_point_enemy <= 1:
         x_enemy = 1000
+        y_enemy = rd(450, 550)
         dead_enemy_bool = False
         dead_point_enemy = 100
+        enemy_count_hp = 3
     else:
         screen.blit(dead_enemy_left, (x_enemy, y_enemy))
     dead_point_enemy -= 1
 
 def if_dead_enemy():
-    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, y_chest, random_x_enemy, dead_enemy_bool
+    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, y_chest, random_x_enemy, dead_enemy_bool, enemy_count_hp
+    enemy_hp(enemy_count_hp)
     if anim_point_player <= 5 and not look_player_r and xp + 40 <= x_enemy <= xp + 80 and yp - 40 <= y_enemy <= yp + 120:
-        dead_enemy_bool = True
+        enemy_count_hp -= 2
     elif anim_point_player <= 5 and look_player_r and xp - 40 <= x_enemy + 40 <= xp + 40 and yp - 40 <= y_enemy <= yp + 120:
-        dead_enemy_bool = True
+        enemy_count_hp -= 2
     elif x_enemy + 80 >= x_dagger >= x_enemy and y_enemy + 80 >= y_dagger >= y_enemy:
-        dead_enemy_bool = True
+        enemy_count_hp -= 1
 
 position = 40
 y_step_enemy = 70
@@ -252,7 +279,7 @@ def move_enemy():
         if move_enemy_r:
             if 30 <= position <= 40 and 550 >= y_enemy >= 450:
                 y_enemy = y_enemy - y_step_enemy*delta_t
-            elif 10 <= position <= 20 and 550 >= y_enemy >= 430:
+            elif 10 <= position <= 20 and 550 >= y_enemy >= 450:
                 y_enemy = y_enemy + y_step_enemy*delta_t
             position -= 0.1
         if position <= 0:
@@ -269,6 +296,69 @@ def move_enemy():
             enemychest = True
             screen.blit(enemy_chest_R, (x_enemy, y_enemy))
         
+
+
+ghostR1 = pg.image.load('textures/ghost/ghostR1.png')
+ghostL1 = pg.image.load('textures/ghost/ghostL1.png')
+x_ghost = 100
+y_ghost = rd(450, 550)
+look_ghost = False
+step_ghost = 80
+step_ghostY = 20
+
+def move_ghost():
+    global x_ghost, y_ghost, look_ghost
+    if 80 <= xp - x_ghost <= 400:
+        x_ghost = x_ghost + step_ghost*delta_t
+        look_ghost = False
+    if 80 <= x_ghost - xp <= 400:
+        x_ghost = x_ghost - step_ghost*delta_t
+        look_ghost = True
+    if 0 <= yp - y_ghost <= 400:
+        y_ghost = y_ghost + step_ghostY*delta_t
+    if 0 <= y_ghost - yp <= 400:
+        y_ghost = y_ghost - step_ghostY*delta_t
+    if not look_ghost:
+        screen.blit(ghostR1, (x_ghost, y_ghost))
+    elif look_ghost:
+        screen.blit(ghostL1, (x_ghost, y_ghost))
+
+hp_0 = pg.image.load('textures/hp/hp_0.png')
+hp_1 = pg.image.load('textures/hp/hp_1.png')
+hp_2 = pg.image.load('textures/hp/hp_2.png')
+hp_3 = pg.image.load('textures/hp/hp_3.png')
+hp_4 = pg.image.load('textures/hp/hp_4.png')
+hp = 4
+dead_player_bool = False
+
+def hp_player():
+    global hp, hp_point, x_ghost, y_ghost, dead_player_bool
+    if x_ghost <= xp <= x_ghost + 80 and y_ghost <= yp <= y_ghost + 10:
+        x_ghost = 100
+        y_ghost = rd(450, 550)
+        hp -= 1
+    if hp == 4:
+        screen.blit(hp_4, (0, 0))
+    elif hp == 3:
+        screen.blit(hp_3, (0,0))
+    elif hp == 2:
+        screen.blit(hp_2, (0,0))
+    elif hp == 1:
+        screen.blit(hp_1, (0,0))
+    elif hp <= 0:
+        screen.blit(hp_0, (0,0))
+        dead_player_bool = True
+
+def dead_player():
+    global yp, step, xp, dead_player_bool
+    if dead_player_bool:
+        if not look_player_r:
+            screen.blit(playerR1, (xp, yp))
+        else:
+            screen.blit(playerL1, (xp, yp))
+        yp = yp + step*delta_t
+        if yp <= -80:
+            dead_player_bool = False
 
 
 
@@ -365,8 +455,10 @@ def game():
         chest()
         move_player()
         move_enemy()
+        move_ghost()
         esc_game()
         shot()
+        hp_player()
         сlock.tick(FPS)
         pg.display.flip()
 
