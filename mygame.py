@@ -179,29 +179,36 @@ def anim_player(playerR, playerL):
 
 
 
-
+sword = pg.image.load('textures/sword.png')
+swordY = 0
 def move_player():
-    global look_player_r, delta_t, last_time, xp, yp, step, animation_hit
+    global look_player_r, delta_t, last_time, xp, yp, step, animation_hit, swordY
     delta_t = time.time() - last_time
     last_time = time.time()
     keys = pg.key.get_pressed()
-    if not animation_hit:
-        if not look_player_r:
-            screen.blit(playerR1, (xp, yp))
+    if not dead_player_bool:
+        if not animation_hit:
+            if not look_player_r:
+                screen.blit(playerR1, (xp, yp))
+            else:
+                screen.blit(playerL1, (xp, yp))
+            if keys[pg.K_d] and xp < 1200:
+                look_player_r = False
+                xp = xp + step*delta_t
+            if keys[pg.K_a] and xp > 45:
+                look_player_r = True
+                xp = xp - step*delta_t
+            if keys[pg.K_w] and yp > 435:
+                yp = yp - step*delta_t
+            if keys[pg.K_s] and yp < 550:
+                yp = yp + step*delta_t
         else:
-            screen.blit(playerL1, (xp, yp))
-        if keys[pg.K_d] and xp < 1200:
-            look_player_r = False
-            xp = xp + step*delta_t
-        if keys[pg.K_a] and xp > 45:
-            look_player_r = True
-            xp = xp - step*delta_t
-        if keys[pg.K_w] and yp > 435:
-            yp = yp - step*delta_t
-        if keys[pg.K_s] and yp < 550:
-            yp = yp + step*delta_t
+            anim_player(playerR, playerL)
+        swordY = yp
     else:
-        anim_player(playerR, playerL)
+        screen.blit(sword, (xp, swordY))
+        dead_player()
+
 
 
 dead_enemy_bool = False
@@ -250,12 +257,20 @@ def dead_enemy():
 def if_dead_enemy():
     global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, y_chest, random_x_enemy, dead_enemy_bool, enemy_count_hp
     enemy_hp(enemy_count_hp)
-    if anim_point_player <= 5 and not look_player_r and xp + 40 <= x_enemy <= xp + 80 and yp - 40 <= y_enemy <= yp + 120:
-        enemy_count_hp -= 2
-    elif anim_point_player <= 5 and look_player_r and xp - 40 <= x_enemy + 40 <= xp + 40 and yp - 40 <= y_enemy <= yp + 120:
-        enemy_count_hp -= 2
-    elif x_enemy + 80 >= x_dagger >= x_enemy and y_enemy + 80 >= y_dagger >= y_enemy:
-        enemy_count_hp -= 1
+    if not enemychest:
+        if anim_point_player <= 5 and not look_player_r and xp + 40 <= x_enemy <= xp + 80 and yp - 40 <= y_enemy <= yp + 120:
+            enemy_count_hp -= 2
+        elif anim_point_player <= 5 and look_player_r and xp - 40 <= x_enemy + 40 <= xp + 40 and yp - 40 <= y_enemy <= yp + 120:
+            enemy_count_hp -= 2
+        elif x_enemy + 80 >= x_dagger >= x_enemy and y_enemy + 80 >= y_dagger >= y_enemy:
+            enemy_count_hp -= 1
+    else:
+        if anim_point_player <= 5 and not look_player_r and xp + 40 <= x_enemy <= xp + 80 and yp - 40 <= y_enemy <= yp + 120:
+            enemy_count_hp -= 2
+        elif anim_point_player <= 5 and look_player_r and xp - 40 <= x_enemy + 40 <= xp + 40 and yp - 40 <= y_enemy <= yp + 120:
+            enemy_count_hp -= 2
+        elif x_enemy + 80 >= x_dagger >= x_enemy and y_enemy + 100 >= y_dagger >= y_enemy - 20:
+            enemy_count_hp -= 1
 
 position = 40
 y_step_enemy = 70
@@ -332,7 +347,7 @@ hp = 4
 dead_player_bool = False
 
 def hp_player():
-    global hp, hp_point, x_ghost, y_ghost, dead_player_bool
+    global hp, x_ghost, y_ghost, dead_player_bool
     if x_ghost <= xp <= x_ghost + 80 and y_ghost <= yp <= y_ghost + 10:
         x_ghost = 100
         y_ghost = rd(450, 550)
@@ -349,17 +364,26 @@ def hp_player():
         screen.blit(hp_0, (0,0))
         dead_player_bool = True
 
-def dead_player():
-    global yp, step, xp, dead_player_bool
-    if dead_player_bool:
-        if not look_player_r:
-            screen.blit(playerR1, (xp, yp))
-        else:
-            screen.blit(playerL1, (xp, yp))
-        yp = yp + step*delta_t
-        if yp <= -80:
-            dead_player_bool = False
+deadPlayerR= pg.image.load('textures/player/dead_playerR.png')
+deadPlayerL= pg.image.load('textures/player/dead_playerL.png')
 
+def dead_player():
+    global yp, step, xp, dead_player_bool, hp
+    yp = yp - step*delta_t
+    if not look_player_r:
+        screen.blit(deadPlayerR, (xp, yp))
+    else:
+        screen.blit(deadPlayerL, (xp, yp))
+    if yp - 80 <= 0:
+        dead_player_bool = False
+        revival_player(xp, yp, hp)
+        xp, yp, hp = revival_player(xp, yp, hp)
+
+def revival_player(xp, yp, hp):
+    xp = 640
+    yp = 500
+    hp = 4
+    return xp, yp, hp
 
 
 look_shot = 0
@@ -427,12 +451,7 @@ def menu2():
         сlock.tick(FPS)
 
 def look_dagger(look_shot):
-    if not look_player_r:
-        look_shot = 1
-    elif look_player_r:
-        look_shot = 2
-    return look_shot
-
+    return 1 if not look_player_r else 2
 
 def game():
     global run_esc, bool_shot, look_shot, look_player_r, animation_hit, x_dagger, y_dagger
