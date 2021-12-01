@@ -1,8 +1,6 @@
-from math import e
 import pygame as pg
 from random import randint as rd
 import time
-clock = pg.time.Clock()
 pg.init()
 FPS = 60
 сlock = pg.time.Clock()
@@ -25,32 +23,24 @@ enemyLeft = pg.image.load('textures/enemy/enemyLeft.png')
 enemyRight = pg.image.load('textures/enemy/enemyRight.png')
 enemy_chest_L = pg.image.load('textures/enemy/enemy_chest_L.png')
 enemy_chest_R = pg.image.load('textures/enemy/enemy_chest_R.png')
-pickaxe_helmet = pg.image.load('textures/pickaxe_helmet.png')
 daggerRight = pg.image.load('textures/daggerRight.png')
 daggerLeft = pg.image.load('textures/daggerLeft.png')
 
-xp = 640
-yp = 500
-x_dagger = xp + 55
-y_dagger = yp + 55
-step = 200
-step_shot = 300
-n = 1400
-xb, yb = 0, 0
-x_chest = 80
-y_chest = 540
-x_openchest = 50
+last_time = time.time()
+
 look_player_r = False
 look_enemy_r = False
 move_enemy_r = False
 enemychest = False
-last_time = time.time()
 bool_shot = False
 run_esc = False
 
 
 chest1 = pg.image.load('textures/chest.png')
 open_chest = pg.image.load('textures/open_chest.png')
+x_chest = 80
+y_chest = 540
+x_openchest = 50
 
 def chest():
     global x_chest, y_chest
@@ -117,6 +107,50 @@ def menu(e):
         howtoplay()
     pg.display.update()
 
+esc_menu = pg.image.load('textures/esc/esc_menu.png')
+esc_1 = pg.image.load('textures/esc/esc_1.png')
+esc_2 = pg.image.load('textures/esc/esc_2.png')
+esc_3 = pg.image.load('textures/esc/esc_3.png')
+run_esc = False
+
+def esc_game():
+    global run_game, run_esc
+    while run_esc:
+        pos = pg.mouse.get_pos()
+        for e in pg.event.get():
+            if e.type == pg.QUIT:
+                exit()
+            if 660 >= pos[0] >= 0 and 510 >= pos[1] >= 410:
+                screen.blit(esc_1, (0,0))
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    run_game = True
+                    run_esc = False
+            elif 535 >= pos[0] >= 15 and 595 >= pos[1] >= 525:
+                screen.blit(esc_2, (0,0))
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    menu2()
+                    run_esc = False
+            elif 200 >= pos[0] >= 10 and 720 >= pos[1] >= 635:
+                screen.blit(esc_3, (0,0))
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    quit()
+            else:
+                screen.blit(esc_menu, (0,0))
+        pg.display.flip()
+
+def menu2():
+    global run_game
+    run_menu = True
+    while run_menu:
+        pos = pg.mouse.get_pos()
+        for e in pg.event.get():
+            if e.type == pg.QUIT:
+                exit()
+            menu(e)
+            if 900 >= pos[0] >= 430 and 275 >= pos[1] >= 200 and e.type == pg.MOUSEBUTTONDOWN:
+                run_menu = False
+                run_game = True
+
 
 playerL0 = pg.image.load('textures/player/playerSwordL0.png')
 playerL1 = pg.image.load('textures/player/playerSwordL1.png')
@@ -132,6 +166,7 @@ playerR = [playerR0, playerR1, playerR2, playerR3, playerR4]
 playerL = [playerL0, playerL1, playerL2, playerL3, playerL4]
 anim_point_player = 40
 animation_hit = False
+
 def anim_player(playerR, playerL):
     global animation_hit, xp, yp, anim_point_player
     if not look_player_r:
@@ -178,11 +213,13 @@ def anim_player(playerR, playerL):
         anim_point_player -= 2.5
 
 
-
+xp = 640
+yp = 500
+step = 200
 sword = pg.image.load('textures/sword.png')
 swordY = 0
 def move_player():
-    global look_player_r, delta_t, last_time, xp, yp, step, animation_hit, swordY
+    global look_player_r, delta_t, last_time, xp, yp, animation_hit, swordY
     delta_t = time.time() - last_time
     last_time = time.time()
     keys = pg.key.get_pressed()
@@ -274,8 +311,10 @@ def if_dead_enemy():
 
 position = 40
 y_step_enemy = 70
+
+
 def move_enemy():
-    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, random_x_enemy, y_chest, dead_enemy_bool, step_enemy, y_step_enemy, position
+    global x_enemy, y_enemy, move_enemy_r, look_enemy_r, enemychest, random_x_enemy, y_chest, dead_enemy_bool, position, gameover_bool
     if_dead_enemy()
     if dead_enemy_bool:
         dead_enemy()
@@ -284,6 +323,7 @@ def move_enemy():
             move_enemy_r = False
             enemychest = False
             random_x_enemy = rd(200, 800)
+        
         if not move_enemy_r:
             if y_enemy < y_chest and x_enemy < random_x_enemy:
                 y_enemy = y_enemy + y_step_enemy*delta_t
@@ -310,7 +350,9 @@ def move_enemy():
         else:
             enemychest = True
             screen.blit(enemy_chest_R, (x_enemy, y_enemy))
-        
+        if enemychest and x_enemy >= 1000:
+            gameover_bool = True
+
 
 
 ghostR1 = pg.image.load('textures/ghost/ghostR1.png')
@@ -367,29 +409,24 @@ def hp_player():
 
 deadPlayerR= pg.image.load('textures/player/dead_playerR.png')
 deadPlayerL= pg.image.load('textures/player/dead_playerL.png')
-stepY = 100
+step_deadPlayer = 100
 
 def dead_player():
-    global yp, stepY, xp, dead_player_bool, hp
-    yp = yp - stepY*delta_t
+    global yp, xp, dead_player_bool, hp, gameover_bool
+    yp = yp - step_deadPlayer*delta_t
     if not look_player_r:
         screen.blit(deadPlayerR, (xp, yp))
     else:
         screen.blit(deadPlayerL, (xp, yp))
     if yp + 80 <= 0:
         dead_player_bool = False
-        revival_player(xp, yp, hp)
-        xp, yp, hp = revival_player(xp, yp, hp)
-
-def revival_player(xp, yp, hp):
-    xp = 640
-    yp = 500
-    hp = 4
-    return xp, yp, hp
+        gameover_bool = True
 
 
 look_shot = 0
-
+x_dagger = xp + 55
+y_dagger = yp + 55
+step_shot = 300
 def shot():
     global bool_shot, step_shot, x_dagger, y_dagger, look_shot
     if bool_shot:
@@ -407,57 +444,45 @@ def shot():
         look_shot = look_dagger(look_shot)
 
 
-    
-esc_menu = pg.image.load('textures/esc/esc_menu.png')
-esc_1 = pg.image.load('textures/esc/esc_1.png')
-esc_2 = pg.image.load('textures/esc/esc_2.png')
-esc_3 = pg.image.load('textures/esc/esc_3.png')
 
-def esc_game():
-    global run_game, run_esc
-    while run_esc:
-        pos = pg.mouse.get_pos()
-        for e in pg.event.get():
-            if e.type == pg.QUIT:
-                exit()
-            if 660 >= pos[0] >= 0 and 510 >= pos[1] >= 410:
-                screen.blit(esc_1, (0,0))
-                if e.type == pg.MOUSEBUTTONDOWN:
-                    run_game = True
-                    run_esc = False
-            elif 535 >= pos[0] >= 15 and 595 >= pos[1] >= 525:
-                screen.blit(esc_2, (0,0))
-                if e.type == pg.MOUSEBUTTONDOWN:
-                    menu2()
-                    run_esc = False
-            elif 200 >= pos[0] >= 10 and 720 >= pos[1] >= 635:
-                screen.blit(esc_3, (0,0))
-                if e.type == pg.MOUSEBUTTONDOWN:
-                    quit()
-            else:
-                screen.blit(esc_menu, (0,0))
-
-
-def menu2():
-    global run_game
-    run_menu = True
-    while run_menu:
-        pos = pg.mouse.get_pos()
-        for e in pg.event.get():
-            if e.type == pg.QUIT:
-                exit()
-            menu(e)
-            if 900 >= pos[0] >= 430 and 275 >= pos[1] >= 200 and e.type == pg.MOUSEBUTTONDOWN:
-                run_menu = False
-                run_game = True
-        сlock.tick(FPS)
 
 def look_dagger(look_shot):
     return 1 if not look_player_r else 2
 
+
+gameover_img = pg.image.load('textures/gameover.png')
+gameover_bool = False
+
+def gameover(gameover_bool):
+    while gameover_bool:
+        screen.blit(gameover_img, (0,0))
+        for e in pg.event.get():
+            if e.type == pg.QUIT:
+                quit()
+            if e.type == pg.KEYDOWN:
+                if e.key == pg.K_RETURN:
+                    quit()
+        pg.display.flip()
+
+
+time_game = 0
+
+def step_change(time_game):
+    global step_enemy, y_step_enemy, step_ghost
+    if 20 >= time_game >= 10:
+        step_enemy = 150
+        y_step_enemy = 120
+        step_ghost = 120
+    if time_game > 20:
+        step_enemy = 180
+        y_step_enemy = 140
+        step_ghost = 140
+
+
 def game():
-    global run_esc, bool_shot, look_shot, look_player_r, animation_hit, x_dagger, y_dagger
+    global run_esc, run_game, bool_shot, look_shot, look_player_r, animation_hit, x_dagger, y_dagger, time_game
     while run_game:
+        time_game += 0.01
         screen.blit(background, (0,0))
         for e in pg.event.get():
             if e.type == pg.QUIT:
@@ -465,6 +490,7 @@ def game():
             if e.type == pg.KEYDOWN:
                 if e.key == pg.K_ESCAPE:
                     run_esc = True
+                    run_game = False
                 if e.key == pg.K_f:
                     look_dagger(look_shot)
                     if not bool_shot:
@@ -480,6 +506,8 @@ def game():
         esc_game()
         shot()
         hp_player()
+        step_change(time_game)
+        gameover(gameover_bool)
         сlock.tick(FPS)
         pg.display.flip()
 
