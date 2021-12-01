@@ -1,7 +1,6 @@
 import pygame as pg
 from random import randint as rd
 import time
-clock = pg.time.Clock()
 pg.init()
 FPS = 60
 сlock = pg.time.Clock()
@@ -28,28 +27,21 @@ pickaxe_helmet = pg.image.load('textures/pickaxe_helmet.png')
 daggerRight = pg.image.load('textures/daggerRight.png')
 daggerLeft = pg.image.load('textures/daggerLeft.png')
 
-xp = 640
-yp = 500
-x_dagger = xp + 55
-y_dagger = yp + 55
-step = 200
-step_shot = 300
-n = 1400
-xb, yb = 0, 0
-x_chest = 80
-y_chest = 540
-x_openchest = 50
+last_time = time.time()
+
 look_player_r = False
 look_enemy_r = False
 move_enemy_r = False
 enemychest = False
-last_time = time.time()
 bool_shot = False
 run_esc = False
 
 
 chest1 = pg.image.load('textures/chest.png')
 open_chest = pg.image.load('textures/open_chest.png')
+x_chest = 80
+y_chest = 540
+x_openchest = 50
 
 def chest():
     global x_chest, y_chest
@@ -145,10 +137,11 @@ def esc_game():
                     quit()
             else:
                 screen.blit(esc_menu, (0,0))
+        pg.display.flip()
 
-run_menu = True
 def menu2():
-    global run_game, run_menu
+    global run_game
+    run_menu = True
     while run_menu:
         pos = pg.mouse.get_pos()
         for e in pg.event.get():
@@ -221,11 +214,13 @@ def anim_player(playerR, playerL):
         anim_point_player -= 2.5
 
 
-
+xp = 640
+yp = 500
+step = 200
 sword = pg.image.load('textures/sword.png')
 swordY = 0
 def move_player():
-    global look_player_r, delta_t, last_time, xp, yp, step, animation_hit, swordY
+    global look_player_r, delta_t, last_time, xp, yp, animation_hit, swordY
     delta_t = time.time() - last_time
     last_time = time.time()
     keys = pg.key.get_pressed()
@@ -353,7 +348,7 @@ def move_enemy():
         else:
             enemychest = True
             screen.blit(enemy_chest_R, (x_enemy, y_enemy))
-        
+
 
 
 ghostR1 = pg.image.load('textures/ghost/ghostR1.png')
@@ -420,7 +415,6 @@ def dead_player():
         screen.blit(deadPlayerL, (xp, yp))
     if yp + 80 <= 0:
         dead_player_bool = False
-        revival_player(xp, yp, hp)
         xp, yp, hp = revival_player(xp, yp, hp)
 
 def revival_player(xp, yp, hp):
@@ -431,7 +425,9 @@ def revival_player(xp, yp, hp):
 
 
 look_shot = 0
-
+x_dagger = xp + 55
+y_dagger = yp + 55
+step_shot = 300
 def shot():
     global bool_shot, step_shot, x_dagger, y_dagger, look_shot
     if bool_shot:
@@ -456,7 +452,7 @@ def look_dagger(look_shot):
     return 1 if not look_player_r else 2
 
 def game():
-    global run_menu, run_game, bool_shot, look_shot, look_player_r, animation_hit, x_dagger, y_dagger
+    global run_esc, run_game, bool_shot, look_shot, look_player_r, animation_hit, x_dagger, y_dagger
     while run_game:
         screen.blit(background, (0,0))
         for e in pg.event.get():
@@ -464,7 +460,7 @@ def game():
                 exit()
             if e.type == pg.KEYDOWN:
                 if e.key == pg.K_ESCAPE:
-                    run_menu = True
+                    run_esc = True
                     run_game = False
                 if e.key == pg.K_f:
                     look_dagger(look_shot)
