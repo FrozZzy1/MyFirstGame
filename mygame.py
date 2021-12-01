@@ -323,20 +323,21 @@ step_ghostY = 20
 
 def move_ghost():
     global x_ghost, y_ghost, look_ghost
-    if 80 <= xp - x_ghost <= 400:
-        x_ghost = x_ghost + step_ghost*delta_t
-        look_ghost = False
-    if 80 <= x_ghost - xp <= 400:
-        x_ghost = x_ghost - step_ghost*delta_t
-        look_ghost = True
-    if 0 <= yp - y_ghost <= 400:
-        y_ghost = y_ghost + step_ghostY*delta_t
-    if 0 <= y_ghost - yp <= 400:
-        y_ghost = y_ghost - step_ghostY*delta_t
-    if not look_ghost:
-        screen.blit(ghostR1, (x_ghost, y_ghost))
-    elif look_ghost:
-        screen.blit(ghostL1, (x_ghost, y_ghost))
+    if not dead_player_bool:
+        if 80 <= xp - x_ghost <= 400:
+            x_ghost = x_ghost + step_ghost*delta_t
+            look_ghost = False
+        if 80 <= x_ghost - xp <= 400:
+            x_ghost = x_ghost - step_ghost*delta_t
+            look_ghost = True
+        if 0 <= yp - y_ghost <= 400:
+            y_ghost = y_ghost + step_ghostY*delta_t
+        if 0 <= y_ghost - yp <= 400:
+            y_ghost = y_ghost - step_ghostY*delta_t
+        if not look_ghost:
+            screen.blit(ghostR1, (x_ghost, y_ghost))
+        elif look_ghost:
+            screen.blit(ghostL1, (x_ghost, y_ghost))
 
 hp_0 = pg.image.load('textures/hp/hp_0.png')
 hp_1 = pg.image.load('textures/hp/hp_1.png')
@@ -366,15 +367,16 @@ def hp_player():
 
 deadPlayerR= pg.image.load('textures/player/dead_playerR.png')
 deadPlayerL= pg.image.load('textures/player/dead_playerL.png')
+stepY = 100
 
 def dead_player():
-    global yp, step, xp, dead_player_bool, hp
-    yp = yp - step*delta_t
+    global yp, stepY, xp, dead_player_bool, hp
+    yp = yp - stepY*delta_t
     if not look_player_r:
         screen.blit(deadPlayerR, (xp, yp))
     else:
         screen.blit(deadPlayerL, (xp, yp))
-    if yp - 80 <= 0:
+    if yp + 80 <= 0:
         dead_player_bool = False
         revival_player(xp, yp, hp)
         xp, yp, hp = revival_player(xp, yp, hp)
