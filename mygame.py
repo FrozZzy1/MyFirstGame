@@ -1,4 +1,3 @@
-from math import e
 import pygame as pg
 from random import randint as rd
 import time
@@ -117,6 +116,49 @@ def menu(e):
         howtoplay()
     pg.display.update()
 
+esc_menu = pg.image.load('textures/esc/esc_menu.png')
+esc_1 = pg.image.load('textures/esc/esc_1.png')
+esc_2 = pg.image.load('textures/esc/esc_2.png')
+esc_3 = pg.image.load('textures/esc/esc_3.png')
+run_esc = False
+
+def esc_game():
+    global run_game, run_esc
+    while run_esc:
+        pos = pg.mouse.get_pos()
+        for e in pg.event.get():
+            if e.type == pg.QUIT:
+                exit()
+            if 660 >= pos[0] >= 0 and 510 >= pos[1] >= 410:
+                screen.blit(esc_1, (0,0))
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    run_game = True
+                    run_esc = False
+            elif 535 >= pos[0] >= 15 and 595 >= pos[1] >= 525:
+                screen.blit(esc_2, (0,0))
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    menu2()
+                    run_esc = False
+            elif 200 >= pos[0] >= 10 and 720 >= pos[1] >= 635:
+                screen.blit(esc_3, (0,0))
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    quit()
+            else:
+                screen.blit(esc_menu, (0,0))
+
+run_menu = True
+def menu2():
+    global run_game, run_menu
+    while run_menu:
+        pos = pg.mouse.get_pos()
+        for e in pg.event.get():
+            if e.type == pg.QUIT:
+                exit()
+            menu(e)
+            if 900 >= pos[0] >= 430 and 275 >= pos[1] >= 200 and e.type == pg.MOUSEBUTTONDOWN:
+                run_menu = False
+                run_game = True
+
 
 playerL0 = pg.image.load('textures/player/playerSwordL0.png')
 playerL1 = pg.image.load('textures/player/playerSwordL1.png')
@@ -132,6 +174,7 @@ playerR = [playerR0, playerR1, playerR2, playerR3, playerR4]
 playerL = [playerL0, playerL1, playerL2, playerL3, playerL4]
 anim_point_player = 40
 animation_hit = False
+
 def anim_player(playerR, playerL):
     global animation_hit, xp, yp, anim_point_player
     if not look_player_r:
@@ -366,15 +409,16 @@ def hp_player():
 
 deadPlayerR= pg.image.load('textures/player/dead_playerR.png')
 deadPlayerL= pg.image.load('textures/player/dead_playerL.png')
+step_deadPlayer = 100
 
 def dead_player():
     global yp, step, xp, dead_player_bool, hp
-    yp = yp - step*delta_t
+    yp = yp - step_deadPlayer*delta_t
     if not look_player_r:
         screen.blit(deadPlayerR, (xp, yp))
     else:
         screen.blit(deadPlayerL, (xp, yp))
-    if yp - 80 <= 0:
+    if yp + 80 <= 0:
         dead_player_bool = False
         revival_player(xp, yp, hp)
         xp, yp, hp = revival_player(xp, yp, hp)
@@ -406,55 +450,13 @@ def shot():
 
 
     
-esc_menu = pg.image.load('textures/esc/esc_menu.png')
-esc_1 = pg.image.load('textures/esc/esc_1.png')
-esc_2 = pg.image.load('textures/esc/esc_2.png')
-esc_3 = pg.image.load('textures/esc/esc_3.png')
 
-def esc_game():
-    global run_game, run_esc
-    while run_esc:
-        pos = pg.mouse.get_pos()
-        for e in pg.event.get():
-            if e.type == pg.QUIT:
-                exit()
-            if 660 >= pos[0] >= 0 and 510 >= pos[1] >= 410:
-                screen.blit(esc_1, (0,0))
-                if e.type == pg.MOUSEBUTTONDOWN:
-                    run_game = True
-                    run_esc = False
-            elif 535 >= pos[0] >= 15 and 595 >= pos[1] >= 525:
-                screen.blit(esc_2, (0,0))
-                if e.type == pg.MOUSEBUTTONDOWN:
-                    menu2()
-                    run_esc = False
-            elif 200 >= pos[0] >= 10 and 720 >= pos[1] >= 635:
-                screen.blit(esc_3, (0,0))
-                if e.type == pg.MOUSEBUTTONDOWN:
-                    quit()
-            else:
-                screen.blit(esc_menu, (0,0))
-
-
-def menu2():
-    global run_game
-    run_menu = True
-    while run_menu:
-        pos = pg.mouse.get_pos()
-        for e in pg.event.get():
-            if e.type == pg.QUIT:
-                exit()
-            menu(e)
-            if 900 >= pos[0] >= 430 and 275 >= pos[1] >= 200 and e.type == pg.MOUSEBUTTONDOWN:
-                run_menu = False
-                run_game = True
-        сlock.tick(FPS)
 
 def look_dagger(look_shot):
     return 1 if not look_player_r else 2
 
 def game():
-    global run_esc, bool_shot, look_shot, look_player_r, animation_hit, x_dagger, y_dagger
+    global run_menu, run_game, bool_shot, look_shot, look_player_r, animation_hit, x_dagger, y_dagger
     while run_game:
         screen.blit(background, (0,0))
         for e in pg.event.get():
@@ -462,7 +464,8 @@ def game():
                 exit()
             if e.type == pg.KEYDOWN:
                 if e.key == pg.K_ESCAPE:
-                    run_esc = True
+                    run_menu = True
+                    run_game = False
                 if e.key == pg.K_f:
                     look_dagger(look_shot)
                     if not bool_shot:
