@@ -438,7 +438,7 @@ newdagger = pg.transform.scale(daggerRight, (80, 80))
 font = pg.font.Font('font/Comic_Sans_MS_Pixel.ttf', 80)
 
 
-def count_():
+def func_count_dagger():
     text = font.render(f'{count_dagger}', True, 'black')
     screen.blit(newdagger, (1160, 10))
     screen.blit(text, (1120, 10))
@@ -527,7 +527,7 @@ def game():
                     animation_hit = True
                 elif e.key == pg.K_e:
                     balistica.balistic_bool = True
-        count_()
+        func_count_dagger()
         balistica.balistic_shot()
         chest()
         move_player()
